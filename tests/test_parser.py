@@ -90,3 +90,24 @@ def test_str_representation():
     raw = "*/5 9-17 * * 1-5"
     expr = parse(raw)
     assert str(expr) == raw
+
+
+def test_parse_comma_list_with_range():
+    """Test that comma-separated lists can include range expressions."""
+    expr = parse("0 8,12-14,18 * * *")
+    assert expr.fields["hour"].values == [8, 12, 13, 14, 18]
+
+
+def test_parse_day_of_month_boundary_values():
+    """Test that day-of-month boundary values (1 and 31) are accepted."""
+    expr = parse("0 0 1 * *")
+    assert expr.fields["day_of_month"].values == [1]
+
+    expr = parse("0 0 31 * *")
+    assert expr.fields["day_of_month"].values == [31]
+
+    with pytest.raises(CronParseError, match="out of range"):
+        parse("0 0 0 * *")
+
+    with pytest.raises(CronParseError, match="out of range"):
+        parse("0 0 32 * *")
