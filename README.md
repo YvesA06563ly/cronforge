@@ -45,6 +45,17 @@ from cronforge import validate
 result = validate("*/5 * * * *")
 print(result.valid)        # True
 print(result.description)  # "Every 5 minutes"
+
+# Preview from a specific start time
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+start = datetime(2024, 12, 1, 0, 0, tzinfo=ZoneInfo("America/Chicago"))
+for run in preview(cron, count=3, start=start):
+    print(run)
+# → 2024-12-02 09:30:00 CST
+# → 2024-12-03 09:30:00 CST
+# → 2024-12-04 09:30:00 CST
 ```
 
 ---
@@ -55,6 +66,7 @@ print(result.description)  # "Every 5 minutes"
 - Human-readable descriptions for any valid cron string
 - Timezone-aware scheduling previews using `zoneinfo`
 - Validates expressions and surfaces meaningful error messages
+- Preview scheduled runs from a custom start datetime
 
 ---
 
