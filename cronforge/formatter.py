@@ -58,3 +58,43 @@ def format_schedule(
 def format_next(dt: datetime, fmt: OutputFormat = "plain") -> str:
     """Format a single next-run datetime."""
     return _format_single(dt, fmt)
+
+
+def format_countdown(dt: datetime, now: datetime | None = None) -> str:
+    """Return a human-readable countdown string from now until *dt*.
+
+    Args:
+        dt: The future datetime to count down to.
+        now: The reference point in time. Defaults to ``datetime.now()``
+             (or ``datetime.now(dt.tzinfo)`` when *dt* is timezone-aware).
+
+    Returns:
+        A string such as ``"in 2 days, 3 hours, 15 minutes"``.
+
+    Raises:
+        FormatterError: If *dt* is not in the future relative to *now*.
+    """
+    if now is None:
+        now = datetime.now(dt.tzinfo)
+
+    delta = dt - now
+    total_seconds = int(delta.total_seconds())
+
+    if total_seconds < 0:
+        raise FormatterError("Countdown datetime is in the past.")
+
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    parts = []
+    if days:
+        parts.append(f"{days} day{'s' if days != 1 else ''}")
+    if hours:
+        parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+    if minutes:
+        parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+    if not parts:
+        parts.append(f"{seconds} second{'s' if seconds != 1 else ''}")
+
+    return "in " + ", ".join(parts)
