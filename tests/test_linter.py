@@ -78,3 +78,15 @@ def test_expression_preserved_in_result():
     expr = "15 14 1 * *"
     result = lint(expr)
     assert result.expression == expr
+
+
+@pytest.mark.parametrize("expr", [
+    "not a cron",
+    "* * *",
+    "* * * * * * *",
+    "",
+])
+def test_invalid_expressions_raise_linter_error(expr):
+    """Various malformed expressions should all raise LinterError."""
+    with pytest.raises(LinterError):
+        lint(expr)
